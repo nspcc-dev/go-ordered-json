@@ -610,6 +610,7 @@ var encodeStringTests = []struct {
 	{"\x1d", `"\u001d"`},
 	{"\x1e", `"\u001e"`},
 	{"\x1f", `"\u001f"`},
+	{"'", `"\u0027"`},
 }
 
 func TestEncodeString(t *testing.T) {
