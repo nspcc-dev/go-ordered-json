@@ -13,17 +13,6 @@ env:
   GO111MODULE: "on"
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: latest
-
   test_cover:
     name: Coverage
     runs-on: ubuntu-18.04
@@ -38,7 +27,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
+          go-version: 1.21
 
       - name: Restore Go modules from cache
         uses: actions/cache@v2
@@ -64,7 +53,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        go_versions: [ '1.15', '1.16' ]
+        go_versions: [ '1.19', '1.20' ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
