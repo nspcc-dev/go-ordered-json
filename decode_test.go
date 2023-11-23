@@ -1095,7 +1095,7 @@ func TestUnmarshalPtrPtr(t *testing.T) {
 
 func TestEscape(t *testing.T) {
 	const input = `"foobar"<html>` + " [\u2028 \u2029]"
-	const expected = `"\"foobar\"\u003chtml\u003e [\u2028 \u2029]"`
+	const expected = `"\"foobar\"\u003Chtml\u003E [\u2028 \u2029]"`
 	b, err := Marshal(input)
 	if err != nil {
 		t.Fatalf("Marshal error: %v", err)
