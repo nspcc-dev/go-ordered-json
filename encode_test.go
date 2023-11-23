@@ -246,7 +246,7 @@ func TestMarshaler_NeoGo_PR2174(t *testing.T) {
 
 func TestMarshalerEscaping(t *testing.T) {
 	var c C
-	want := `"\u003c\u0026\u003e"`
+	want := `"\u003C\u0026\u003E"`
 	b, err := Marshal(c)
 	if err != nil {
 		t.Fatalf("Marshal(c): %v", err)
@@ -256,7 +256,7 @@ func TestMarshalerEscaping(t *testing.T) {
 	}
 
 	var ct CText
-	want = `"\"\u003c\u0026\u003e\""`
+	want = `"\"\u003C\u0026\u003E\""`
 	b, err = Marshal(ct)
 	if err != nil {
 		t.Fatalf("Marshal(ct): %v", err)
@@ -541,7 +541,7 @@ func TestIssue10281(t *testing.T) {
 func TestHTMLEscape(t *testing.T) {
 	var b, want bytes.Buffer
 	m := `{"M":"<html>foo &` + "\xe2\x80\xa8 \xe2\x80\xa9" + `</html>"}`
-	want.Write([]byte(`{"M":"\u003chtml\u003efoo \u0026\u2028 \u2029\u003c/html\u003e"}`))
+	want.Write([]byte(`{"M":"\u003Chtml\u003Efoo \u0026\u2028 \u2029\u003C/html\u003E"}`))
 	HTMLEscape(&b, []byte(m))
 	if !bytes.Equal(b.Bytes(), want.Bytes()) {
 		t.Errorf("HTMLEscape(&b, []byte(m)) = %s; want %s", b.Bytes(), want.Bytes())
@@ -589,11 +589,11 @@ var encodeStringTests = []struct {
 	{"\x08", `"\u0008"`},
 	{"\x09", `"\t"`},
 	{"\x0a", `"\n"`},
-	{"\x0b", `"\u000b"`},
-	{"\x0c", `"\u000c"`},
+	{"\x0b", `"\u000B"`},
+	{"\x0c", `"\u000C"`},
 	{"\x0d", `"\r"`},
-	{"\x0e", `"\u000e"`},
-	{"\x0f", `"\u000f"`},
+	{"\x0e", `"\u000E"`},
+	{"\x0f", `"\u000F"`},
 	{"\x10", `"\u0010"`},
 	{"\x11", `"\u0011"`},
 	{"\x12", `"\u0012"`},
@@ -604,12 +604,12 @@ var encodeStringTests = []struct {
 	{"\x17", `"\u0017"`},
 	{"\x18", `"\u0018"`},
 	{"\x19", `"\u0019"`},
-	{"\x1a", `"\u001a"`},
-	{"\x1b", `"\u001b"`},
-	{"\x1c", `"\u001c"`},
-	{"\x1d", `"\u001d"`},
-	{"\x1e", `"\u001e"`},
-	{"\x1f", `"\u001f"`},
+	{"\x1a", `"\u001A"`},
+	{"\x1b", `"\u001B"`},
+	{"\x1c", `"\u001C"`},
+	{"\x1d", `"\u001D"`},
+	{"\x1e", `"\u001E"`},
+	{"\x1f", `"\u001F"`},
 	{"'", `"\u0027"`},
 }
 
