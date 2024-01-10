@@ -79,7 +79,7 @@ type StringTag struct {
 var stringTagExpected = `{
  "BoolStr": "true",
  "IntStr": "42",
- "StrStr": "\"xzbit\""
+ "StrStr": "\u0022xzbit\u0022"
 }`
 
 func TestStringTag(t *testing.T) {
@@ -207,7 +207,7 @@ func TestRefValMarshal(t *testing.T) {
 		V2: 15,
 		V3: new(ValText),
 	}
-	const want = `{"R0":"ref","R1":"ref","R2":"\"ref\"","R3":"\"ref\"","V0":"val","V1":"val","V2":"\"val\"","V3":"\"val\""}`
+	const want = `{"R0":"ref","R1":"ref","R2":"\u0022ref\u0022","R3":"\u0022ref\u0022","V0":"val","V1":"val","V2":"\u0022val\u0022","V3":"\u0022val\u0022"}`
 	b, err := Marshal(&s)
 	if err != nil {
 		t.Fatalf("Marshal: %v", err)
@@ -256,7 +256,7 @@ func TestMarshalerEscaping(t *testing.T) {
 	}
 
 	var ct CText
-	want = `"\"\u003C\u0026\u003E\""`
+	want = `"\u0022\u003C\u0026\u003E\u0022"`
 	b, err = Marshal(ct)
 	if err != nil {
 		t.Fatalf("Marshal(ct): %v", err)
@@ -611,6 +611,7 @@ var encodeStringTests = []struct {
 	{"\x1e", `"\u001E"`},
 	{"\x1f", `"\u001F"`},
 	{"'", `"\u0027"`},
+	{"\"", `"\u0022"`},
 }
 
 func TestEncodeString(t *testing.T) {

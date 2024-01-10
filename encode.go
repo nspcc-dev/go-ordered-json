@@ -914,7 +914,7 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 				e.WriteString(s[start:i])
 			}
 			switch b {
-			case '\\', '"':
+			case '\\':
 				e.WriteByte('\\')
 				e.WriteByte(b)
 			case '\n':
@@ -927,7 +927,7 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 				e.WriteByte('\\')
 				e.WriteByte('t')
 			default:
-				// This encodes bytes < 0x20 except for \t, \n and \r.
+				// This encodes bytes < 0x20 and " except for \t, \n and \r.
 				// If escapeHTML is set, it also escapes <, >, and &
 				// because they can lead to security holes when
 				// user-controlled strings are rendered into JSON
@@ -1001,7 +1001,7 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 				e.Write(s[start:i])
 			}
 			switch b {
-			case '\\', '"':
+			case '\\':
 				e.WriteByte('\\')
 				e.WriteByte(b)
 			case '\n':
@@ -1014,7 +1014,7 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 				e.WriteByte('\\')
 				e.WriteByte('t')
 			default:
-				// This encodes bytes < 0x20 except for \t, \n and \r.
+				// This encodes bytes < 0x20 and " except for \t, \n and \r.
 				// If escapeHTML is set, it also escapes <, >, and &
 				// because they can lead to security holes when
 				// user-controlled strings are rendered into JSON
