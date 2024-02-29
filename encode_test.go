@@ -27,8 +27,8 @@ type Optionals struct {
 	Slr []string `json:"slr,random"`
 	Slo []string `json:"slo,omitempty"`
 
-	Mr map[string]interface{} `json:"mr"`
-	Mo map[string]interface{} `json:",omitempty"`
+	Mr map[string]any `json:"mr"`
+	Mo map[string]any `json:",omitempty"`
 
 	Fr float64 `json:"fr"`
 	Fo float64 `json:"fo,omitempty"`
@@ -58,8 +58,8 @@ var optionalsExpected = `{
 func TestOmitEmpty(t *testing.T) {
 	var o Optionals
 	o.Sw = "something"
-	o.Mr = map[string]interface{}{}
-	o.Mo = map[string]interface{}{}
+	o.Mr = map[string]any{}
+	o.Mo = map[string]any{}
 
 	got, err := MarshalIndent(&o, "", " ")
 	if err != nil {
@@ -131,7 +131,7 @@ func TestEncodeRenamedByteSlice(t *testing.T) {
 	}
 }
 
-var unsupportedValues = []interface{}{
+var unsupportedValues = []any{
 	math.NaN(),
 	math.Inf(-1),
 	math.Inf(1),
@@ -372,19 +372,19 @@ func (nm *nilMarshaler) MarshalJSON() ([]byte, error) {
 // Issue 16042.
 func TestNilMarshal(t *testing.T) {
 	testCases := []struct {
-		v    interface{}
+		v    any
 		want string
 	}{
 		{v: nil, want: `null`},
 		{v: new(float64), want: `0`},
-		{v: []interface{}(nil), want: `null`},
+		{v: []any(nil), want: `null`},
 		{v: []string(nil), want: `null`},
 		{v: map[string]string(nil), want: `null`},
 		{v: []byte(nil), want: `null`},
 		{v: struct{ M string }{"gopher"}, want: `{"M":"gopher"}`},
 		{v: struct{ M Marshaler }{}, want: `{"M":null}`},
 		{v: struct{ M Marshaler }{(*nilMarshaler)(nil)}, want: `{"M":"0zenil0"}`},
-		{v: struct{ M interface{} }{(*nilMarshaler)(nil)}, want: `{"M":null}`},
+		{v: struct{ M any }{(*nilMarshaler)(nil)}, want: `{"M":null}`},
 	}
 
 	for _, tt := range testCases {
@@ -619,7 +619,7 @@ type textint int
 
 func (i textint) MarshalText() ([]byte, error) { return tenc(`TI:%d`, i) }
 
-func tenc(format string, a ...interface{}) ([]byte, error) {
+func tenc(format string, a ...any) ([]byte, error) {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, format, a...)
 	return buf.Bytes(), nil
@@ -628,7 +628,7 @@ func tenc(format string, a ...interface{}) ([]byte, error) {
 // Issue 13783
 func TestEncodeBytekind(t *testing.T) {
 	testdata := []struct {
-		data interface{}
+		data any
 		want string
 	}{
 		{byte(7), "7"},
@@ -701,7 +701,7 @@ func TestMarshalFloat(t *testing.T) {
 	t.Parallel()
 	nfail := 0
 	test := func(f float64, bits int) {
-		vf := interface{}(f)
+		vf := any(f)
 		if bits == 32 {
 			f = float64(float32(f)) // round
 			vf = float32(f)
@@ -794,25 +794,25 @@ func TestMarshalRawMessageValue(t *testing.T) {
 	)
 
 	tests := []struct {
-		in   interface{}
+		in   any
 		want string
 		ok   bool
 	}{
 		// Test with nil RawMessage.
 		{rawNil, "null", true},
 		{&rawNil, "null", true},
-		{[]interface{}{rawNil}, "[null]", true},
-		{&[]interface{}{rawNil}, "[null]", true},
-		{[]interface{}{&rawNil}, "[null]", true},
-		{&[]interface{}{&rawNil}, "[null]", true},
+		{[]any{rawNil}, "[null]", true},
+		{&[]any{rawNil}, "[null]", true},
+		{[]any{&rawNil}, "[null]", true},
+		{&[]any{&rawNil}, "[null]", true},
 		{struct{ M RawMessage }{rawNil}, `{"M":null}`, true},
 		{&struct{ M RawMessage }{rawNil}, `{"M":null}`, true},
 		{struct{ M *RawMessage }{&rawNil}, `{"M":null}`, true},
 		{&struct{ M *RawMessage }{&rawNil}, `{"M":null}`, true},
-		{map[string]interface{}{"M": rawNil}, `{"M":null}`, true},
-		{&map[string]interface{}{"M": rawNil}, `{"M":null}`, true},
-		{map[string]interface{}{"M": &rawNil}, `{"M":null}`, true},
-		{&map[string]interface{}{"M": &rawNil}, `{"M":null}`, true},
+		{map[string]any{"M": rawNil}, `{"M":null}`, true},
+		{&map[string]any{"M": rawNil}, `{"M":null}`, true},
+		{map[string]any{"M": &rawNil}, `{"M":null}`, true},
+		{&map[string]any{"M": &rawNil}, `{"M":null}`, true},
 		{T1{rawNil}, "{}", true},
 		{T2{&rawNil}, `{"M":null}`, true},
 		{&T1{rawNil}, "{}", true},
@@ -821,18 +821,18 @@ func TestMarshalRawMessageValue(t *testing.T) {
 		// Test with empty, but non-nil, RawMessage.
 		{rawEmpty, "", false},
 		{&rawEmpty, "", false},
-		{[]interface{}{rawEmpty}, "", false},
-		{&[]interface{}{rawEmpty}, "", false},
-		{[]interface{}{&rawEmpty}, "", false},
-		{&[]interface{}{&rawEmpty}, "", false},
+		{[]any{rawEmpty}, "", false},
+		{&[]any{rawEmpty}, "", false},
+		{[]any{&rawEmpty}, "", false},
+		{&[]any{&rawEmpty}, "", false},
 		{struct{ X RawMessage }{rawEmpty}, "", false},
 		{&struct{ X RawMessage }{rawEmpty}, "", false},
 		{struct{ X *RawMessage }{&rawEmpty}, "", false},
 		{&struct{ X *RawMessage }{&rawEmpty}, "", false},
-		{map[string]interface{}{"nil": rawEmpty}, "", false},
-		{&map[string]interface{}{"nil": rawEmpty}, "", false},
-		{map[string]interface{}{"nil": &rawEmpty}, "", false},
-		{&map[string]interface{}{"nil": &rawEmpty}, "", false},
+		{map[string]any{"nil": rawEmpty}, "", false},
+		{&map[string]any{"nil": rawEmpty}, "", false},
+		{map[string]any{"nil": &rawEmpty}, "", false},
+		{&map[string]any{"nil": &rawEmpty}, "", false},
 		{T1{rawEmpty}, "{}", true},
 		{T2{&rawEmpty}, "", false},
 		{&T1{rawEmpty}, "{}", true},
@@ -845,18 +845,18 @@ func TestMarshalRawMessageValue(t *testing.T) {
 		// See https://github.com/golang/go/issues/14493#issuecomment-255857318
 		{rawText, `"foo"`, true}, // Issue6458
 		{&rawText, `"foo"`, true},
-		{[]interface{}{rawText}, `["foo"]`, true},  // Issue6458
-		{&[]interface{}{rawText}, `["foo"]`, true}, // Issue6458
-		{[]interface{}{&rawText}, `["foo"]`, true},
-		{&[]interface{}{&rawText}, `["foo"]`, true},
+		{[]any{rawText}, `["foo"]`, true},  // Issue6458
+		{&[]any{rawText}, `["foo"]`, true}, // Issue6458
+		{[]any{&rawText}, `["foo"]`, true},
+		{&[]any{&rawText}, `["foo"]`, true},
 		{struct{ M RawMessage }{rawText}, `{"M":"foo"}`, true}, // Issue6458
 		{&struct{ M RawMessage }{rawText}, `{"M":"foo"}`, true},
 		{struct{ M *RawMessage }{&rawText}, `{"M":"foo"}`, true},
 		{&struct{ M *RawMessage }{&rawText}, `{"M":"foo"}`, true},
-		{map[string]interface{}{"M": rawText}, `{"M":"foo"}`, true},  // Issue6458
-		{&map[string]interface{}{"M": rawText}, `{"M":"foo"}`, true}, // Issue6458
-		{map[string]interface{}{"M": &rawText}, `{"M":"foo"}`, true},
-		{&map[string]interface{}{"M": &rawText}, `{"M":"foo"}`, true},
+		{map[string]any{"M": rawText}, `{"M":"foo"}`, true},  // Issue6458
+		{&map[string]any{"M": rawText}, `{"M":"foo"}`, true}, // Issue6458
+		{map[string]any{"M": &rawText}, `{"M":"foo"}`, true},
+		{&map[string]any{"M": &rawText}, `{"M":"foo"}`, true},
 		{T1{rawText}, `{"M":"foo"}`, true}, // Issue6458
 		{T2{&rawText}, `{"M":"foo"}`, true},
 		{&T1{rawText}, `{"M":"foo"}`, true},
@@ -881,11 +881,11 @@ func TestMarshalRawMessageValue(t *testing.T) {
 type ObjEnc struct {
 	A int
 	B OrderedObject
-	C interface{}
+	C any
 }
 
 var orderedObjectTests = []struct {
-	in  interface{}
+	in  any
 	out string
 }{
 	{OrderedObject{}, `{}`},
@@ -894,7 +894,7 @@ var orderedObjectTests = []struct {
 	{ObjEnc{A: 234, B: OrderedObject{}, C: OrderedObject{{"A", 0}}}, `{"A":234,"B":{},"C":{"A":0}}`},
 	{[]OrderedObject{{{"A", "Ay"}, {"B", "Bee"}}, {{"A", "Nay"}}}, `[{"A":"Ay","B":"Bee"},{"A":"Nay"}]`},
 	{map[string]OrderedObject{"A": {{"A", "Ay"}, {"B", "Bee"}}}, `{"A":{"A":"Ay","B":"Bee"}}`},
-	{map[string]interface{}{"A": OrderedObject{{"A", "Ay"}, {"B", "Bee"}}}, `{"A":{"A":"Ay","B":"Bee"}}`},
+	{map[string]any{"A": OrderedObject{{"A", "Ay"}, {"B", "Bee"}}}, `{"A":{"A":"Ay","B":"Bee"}}`},
 }
 
 func TestEncodeOrderedObject(t *testing.T) {
