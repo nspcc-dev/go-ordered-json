@@ -917,9 +917,15 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 			case '\\':
 				e.WriteByte('\\')
 				e.WriteByte(b)
+			case 0x08:
+				e.WriteByte('\\')
+				e.WriteByte('b')
 			case '\n':
 				e.WriteByte('\\')
 				e.WriteByte('n')
+			case 0x0c:
+				e.WriteByte('\\')
+				e.WriteByte('f')
 			case '\r':
 				e.WriteByte('\\')
 				e.WriteByte('r')
@@ -945,7 +951,9 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 			if start < i {
 				e.WriteString(s[start:i])
 			}
-			e.WriteString(`\ufffd`)
+			e.WriteString(`\u00`)
+			e.WriteByte(hex[s[i]>>4])
+			e.WriteByte(hex[s[i]&0xF])
 			i += size
 			start = i
 			continue
@@ -1004,9 +1012,15 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 			case '\\':
 				e.WriteByte('\\')
 				e.WriteByte(b)
+			case 0x08:
+				e.WriteByte('\\')
+				e.WriteByte('b')
 			case '\n':
 				e.WriteByte('\\')
 				e.WriteByte('n')
+			case 0x0c:
+				e.WriteByte('\\')
+				e.WriteByte('f')
 			case '\r':
 				e.WriteByte('\\')
 				e.WriteByte('r')
@@ -1032,7 +1046,9 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 			if start < i {
 				e.Write(s[start:i])
 			}
-			e.WriteString(`\ufffd`)
+			e.WriteString(`\u00`)
+			e.WriteByte(hex[s[i]>>4])
+			e.WriteByte(hex[s[i]&0xF])
 			i += size
 			start = i
 			continue

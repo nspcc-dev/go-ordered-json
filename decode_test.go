@@ -858,12 +858,12 @@ func TestMarshal(t *testing.T) {
 var badUTF8 = []struct {
 	in, out string
 }{
-	{"hello\xffworld", `"hello\ufffdworld"`},
+	{"hello\xffworld", `"hello\u00FFworld"`},
 	{"", `""`},
-	{"\xff", `"\ufffd"`},
-	{"\xff\xff", `"\ufffd\ufffd"`},
-	{"a\xffb", `"a\ufffdb"`},
-	{"\xe6\x97\xa5\xe6\x9c\xac\xff\xaa\x9e", `"\u65E5\u672C\ufffd\ufffd\ufffd"`},
+	{"\xff", `"\u00FF"`},
+	{"\xff\xff", `"\u00FF\u00FF"`},
+	{"a\xffb", `"a\u00FFb"`},
+	{"\xe6\x97\xa5\xe6\x9c\xac\xff\xaa\x9e", `"\u65E5\u672C\u00FF\u00AA\u009E"`},
 }
 
 func TestMarshalBadUTF8(t *testing.T) {
