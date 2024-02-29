@@ -261,8 +261,8 @@ func ExampleIndent() {
 	}
 
 	var out bytes.Buffer
-	json.Indent(&out, b, "=", "\t")
-	out.WriteTo(os.Stdout)
+	_ = json.Indent(&out, b, "=", "\t")
+	_, _ = out.WriteTo(os.Stdout)
 	// Output:
 	// [
 	// =	{

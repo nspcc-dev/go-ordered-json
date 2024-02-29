@@ -82,7 +82,10 @@ func TestEncoderIndent(t *testing.T) {
 	enc := NewEncoder(&buf)
 	enc.SetIndent(">", ".")
 	for _, v := range streamTest {
-		enc.Encode(v)
+		err := enc.Encode(v)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 	if have, want := buf.String(), streamEncodedIndent; have != want {
 		t.Error("indented encoding mismatch")
@@ -249,7 +252,12 @@ var blockingTests = []string{
 func TestBlocking(t *testing.T) {
 	for _, enc := range blockingTests {
 		r, w := net.Pipe()
-		go w.Write([]byte(enc))
+		go func() {
+			_, err := w.Write([]byte(enc))
+			if err != nil {
+				t.Error(err)
+			}
+		}()
 		var val any
 
 		// If Decode reads beyond what w.Write writes above,
@@ -392,7 +400,10 @@ func TestHTTPDecoding(t *testing.T) {
 	const raw = `{ "foo": "bar" }`
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(raw))
+		_, err := w.Write([]byte(raw))
+		if err != nil {
+			t.Error(err)
+		}
 	}))
 	defer ts.Close()
 	res, err := http.Get(ts.URL)
