@@ -12,7 +12,7 @@ import (
 	"os"
 	"strings"
 
-	json "github.com/virtuald/go-ordered-json"
+	json "github.com/nspcc-dev/go-ordered-json"
 )
 
 func ExampleMarshal() {
@@ -312,5 +312,5 @@ func ExampleOrderedObject() {
 	//  name=Issac Newton born=1643 died=1727
 	//  name=André-Marie Ampère born=1777 died=1836
 	// Encoded:
-	//  {"name":"Hans Christian Ørsted","born":1777,"died":1851,"nationality":"Danish"}
+	//  {"name":"Hans Christian \u00D8rsted","born":1777,"died":1851,"nationality":"Danish"}
 }
