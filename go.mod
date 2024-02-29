@@ -1,6 +1,6 @@
 module github.com/nspcc-dev/go-ordered-json
 
-go 1.15
+go 1.20
 
 require (
 	github.com/virtuald/go-ordered-json v0.0.0-20170621173500-b18e6e673d74
