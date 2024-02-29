@@ -6,6 +6,7 @@ package json_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -69,7 +70,7 @@ func ExampleDecoder() {
 	dec := json.NewDecoder(strings.NewReader(jsonStream))
 	for {
 		var m Message
-		if err := dec.Decode(&m); err == io.EOF {
+		if err := dec.Decode(&m); errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
 			log.Fatal(err)
@@ -92,7 +93,7 @@ func ExampleDecoder_Token() {
 	dec := json.NewDecoder(strings.NewReader(jsonStream))
 	for {
 		t, err := dec.Token()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
