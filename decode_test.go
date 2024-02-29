@@ -1622,7 +1622,7 @@ type NullTestStrings struct {
 	PBool     *bool             `json:",string"`
 	Map       map[string]string `json:",string"`
 	Slice     []string          `json:",string"`
-	Interface any       `json:",string"`
+	Interface any               `json:",string"`
 
 	PRaw    *RawMessage           `json:",string"`
 	PTime   *time.Time            `json:",string"`
@@ -2038,7 +2038,7 @@ func TestInvalidStringOption(t *testing.T) {
 		M map[string]string `json:",string"`
 		S []string          `json:",string"`
 		A [1]string         `json:",string"`
-		I any       `json:",string"`
+		I any               `json:",string"`
 		P *int              `json:",string"`
 	}{M: make(map[string]string), S: make([]string, 0), I: num, P: &num}
 
