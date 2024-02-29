@@ -318,6 +318,7 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.Float() == 0
 	case reflect.Interface, reflect.Ptr:
 		return v.IsNil()
+	default:
 	}
 	return false
 }
@@ -895,6 +896,7 @@ func (w *reflectWithString) resolve() error {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		w.s = strconv.FormatUint(w.v.Uint(), 10)
 		return nil
+	default:
 	}
 	panic("unexpected map key type")
 }
@@ -1189,6 +1191,7 @@ func typeFields(t reflect.Type) []field {
 						reflect.Float32, reflect.Float64,
 						reflect.String:
 						quoted = true
+					default:
 					}
 				}
 
