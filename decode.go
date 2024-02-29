@@ -305,7 +305,7 @@ func (d *decodeState) saveError(err error) {
 	}
 }
 
-// addErrorContext returns a new error enhanced with information from d.errorContext
+// addErrorContext returns a new error enhanced with information from d.errorContext.
 func (d *decodeState) addErrorContext(err error) error {
 	if d.errorContext.Struct != "" || d.errorContext.Field != "" {
 		switch err := err.(type) {
@@ -1009,7 +1009,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 // in an empty interface. They are not strictly necessary,
 // but they avoid the weight of reflection in this common case.
 
-// valueInterface is like value but returns any
+// valueInterface is like value but returns any.
 func (d *decodeState) valueInterface() any {
 	switch d.scanWhile(scanSkipSpace) {
 	default:
