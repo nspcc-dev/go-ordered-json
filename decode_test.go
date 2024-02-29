@@ -58,7 +58,7 @@ var ifaceNumAsNumber = map[string]any{
 }
 
 type tx struct {
-	x int
+	x int //nolint:unused // Used via reflection.
 }
 
 type u8 uint8
@@ -1207,7 +1207,7 @@ type All struct {
 	Interface  any
 	PInterface *any
 
-	unexported int
+	unexported int //nolint:unused // Not really used, but needed for test.
 }
 
 type Small struct {
@@ -1889,8 +1889,8 @@ func TestUnmarshalSyntax(t *testing.T) {
 // Issue 4660
 type unexportedFields struct {
 	Name string
-	m    map[string]any `json:"-"`
-	m2   map[string]any `json:"abcd"`
+	m    map[string]any `json:"-"`    //nolint:unused // Not really used, but important for test.
+	m2   map[string]any `json:"abcd"` //nolint:unused // Not really used, but important for test.
 }
 
 func TestUnmarshalUnexported(t *testing.T) {
