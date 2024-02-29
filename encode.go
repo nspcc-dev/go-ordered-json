@@ -26,6 +26,7 @@ import (
 	"unicode"
 	"unicode/utf16"
 	"unicode/utf8"
+
 	// new in golang 1.9
 	"golang.org/x/sync/syncmap"
 )

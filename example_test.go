@@ -7,11 +7,12 @@ package json_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/virtuald/go-ordered-json"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	json "github.com/virtuald/go-ordered-json"
 )
 
 func ExampleMarshal() {
