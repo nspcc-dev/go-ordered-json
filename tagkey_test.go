@@ -57,11 +57,11 @@ type misnamedTag struct {
 }
 
 type badFormatTag struct {
-	Y string `:"BadFormat"`
+	Y string `:"BadFormat"` //nolint:govet // It's intentionally wrong.
 }
 
 type badCodeTag struct {
-	Z string `json:" !\"#&'()*+,."`
+	Z string `json:" !\"#&'()*+,."` //nolint:staticcheck // It's intentionally wrong.
 }
 
 type spaceTag struct {

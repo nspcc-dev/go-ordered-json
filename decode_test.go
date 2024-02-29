@@ -1159,7 +1159,7 @@ type All struct {
 	Float64 float64
 
 	Foo  string `json:"bar"`
-	Foo2 string `json:"bar2,dummyopt"`
+	Foo2 string `json:"bar2,dummyopt"` //nolint:staticcheck // It's intentionally wrong.
 
 	IntStr int64 `json:",string"`
 
@@ -1620,23 +1620,23 @@ type NullTestStrings struct {
 	Float64   float64           `json:",string"`
 	String    string            `json:",string"`
 	PBool     *bool             `json:",string"`
-	Map       map[string]string `json:",string"`
-	Slice     []string          `json:",string"`
-	Interface any               `json:",string"`
+	Map       map[string]string `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	Slice     []string          `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	Interface any               `json:",string"` //nolint:staticcheck // It's intentionally wrong.
 
-	PRaw    *RawMessage           `json:",string"`
-	PTime   *time.Time            `json:",string"`
-	PBigInt *big.Int              `json:",string"`
-	PText   *MustNotUnmarshalText `json:",string"`
-	PBuffer *bytes.Buffer         `json:",string"`
-	PStruct *struct{}             `json:",string"`
+	PRaw    *RawMessage           `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	PTime   *time.Time            `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	PBigInt *big.Int              `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	PText   *MustNotUnmarshalText `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	PBuffer *bytes.Buffer         `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	PStruct *struct{}             `json:",string"` //nolint:staticcheck // It's intentionally wrong.
 
-	Raw    RawMessage           `json:",string"`
-	Time   time.Time            `json:",string"`
-	BigInt big.Int              `json:",string"`
-	Text   MustNotUnmarshalText `json:",string"`
-	Buffer bytes.Buffer         `json:",string"`
-	Struct struct{}             `json:",string"`
+	Raw    RawMessage           `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	Time   time.Time            `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	BigInt big.Int              `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	Text   MustNotUnmarshalText `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	Buffer bytes.Buffer         `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+	Struct struct{}             `json:",string"` //nolint:staticcheck // It's intentionally wrong.
 }
 
 // JSON null values should be ignored for primitives and string values instead of resulting in an error.
@@ -1890,7 +1890,7 @@ func TestUnmarshalSyntax(t *testing.T) {
 type unexportedFields struct {
 	Name string
 	m    map[string]any `json:"-"`    //nolint:unused // Not really used, but important for test.
-	m2   map[string]any `json:"abcd"` //nolint:unused // Not really used, but important for test.
+	m2   map[string]any `json:"abcd"` //nolint:unused,govet // Not really used and wrong, but important for test.
 }
 
 func TestUnmarshalUnexported(t *testing.T) {
@@ -2034,12 +2034,12 @@ func TestInvalidUnmarshalText(t *testing.T) {
 func TestInvalidStringOption(t *testing.T) {
 	num := 0
 	item := struct {
-		T time.Time         `json:",string"`
-		M map[string]string `json:",string"`
-		S []string          `json:",string"`
-		A [1]string         `json:",string"`
-		I any               `json:",string"`
-		P *int              `json:",string"`
+		T time.Time         `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+		M map[string]string `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+		S []string          `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+		A [1]string         `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+		I any               `json:",string"` //nolint:staticcheck // It's intentionally wrong.
+		P *int              `json:",string"` //nolint:staticcheck // It's intentionally wrong.
 	}{M: make(map[string]string), S: make([]string, 0), I: num, P: &num}
 
 	data, err := Marshal(item)

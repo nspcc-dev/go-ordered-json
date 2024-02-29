@@ -24,7 +24,7 @@ type Optionals struct {
 	Ir int `json:"omitempty"` // actually named omitempty, not an option
 	Io int `json:"io,omitempty"`
 
-	Slr []string `json:"slr,random"`
+	Slr []string `json:"slr,random"` //nolint:staticcheck // It's intentionally wrong.
 	Slo []string `json:"slo,omitempty"`
 
 	Mr map[string]any `json:"mr"`
