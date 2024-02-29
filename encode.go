@@ -81,31 +81,31 @@ import (
 //
 // Examples of struct field tags and their meanings:
 //
-//   // Field appears in JSON as key "myName".
-//   Field int `json:"myName"`
+//	// Field appears in JSON as key "myName".
+//	Field int `json:"myName"`
 //
-//   // Field appears in JSON as key "myName" and
-//   // the field is omitted from the object if its value is empty,
-//   // as defined above.
-//   Field int `json:"myName,omitempty"`
+//	// Field appears in JSON as key "myName" and
+//	// the field is omitted from the object if its value is empty,
+//	// as defined above.
+//	Field int `json:"myName,omitempty"`
 //
-//   // Field appears in JSON as key "Field" (the default), but
-//   // the field is skipped if empty.
-//   // Note the leading comma.
-//   Field int `json:",omitempty"`
+//	// Field appears in JSON as key "Field" (the default), but
+//	// the field is skipped if empty.
+//	// Note the leading comma.
+//	Field int `json:",omitempty"`
 //
-//   // Field is ignored by this package.
-//   Field int `json:"-"`
+//	// Field is ignored by this package.
+//	Field int `json:"-"`
 //
-//   // Field appears in JSON as key "-".
-//   Field int `json:"-,"`
+//	// Field appears in JSON as key "-".
+//	Field int `json:"-,"`
 //
 // The "string" option signals that a field is stored as JSON inside a
 // JSON-encoded string. It applies only to fields of string, floating point,
 // integer, or boolean types. This extra level of encoding is sometimes used
 // when communicating with JavaScript programs:
 //
-//    Int64String int64 `json:",string"`
+//	Int64String int64 `json:",string"`
 //
 // The key name will be used if it's a non-empty string consisting of
 // only Unicode letters, digits, and ASCII punctuation except quotation
@@ -161,7 +161,6 @@ import (
 // JSON cannot represent cyclic data structures and Marshal does not
 // handle them. Passing cyclic structures to Marshal will result in
 // an infinite recursion.
-//
 func Marshal(v interface{}) ([]byte, error) {
 	e := &encodeState{}
 	err := e.marshal(v, encOpts{escapeHTML: true})
@@ -917,9 +916,15 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 			case '\\':
 				e.WriteByte('\\')
 				e.WriteByte(b)
+			case 0x08:
+				e.WriteByte('\\')
+				e.WriteByte('b')
 			case '\n':
 				e.WriteByte('\\')
 				e.WriteByte('n')
+			case 0x0c:
+				e.WriteByte('\\')
+				e.WriteByte('f')
 			case '\r':
 				e.WriteByte('\\')
 				e.WriteByte('r')
@@ -945,7 +950,9 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 			if start < i {
 				e.WriteString(s[start:i])
 			}
-			e.WriteString(`\ufffd`)
+			e.WriteString(`\u00`)
+			e.WriteByte(hex[s[i]>>4])
+			e.WriteByte(hex[s[i]&0xF])
 			i += size
 			start = i
 			continue
@@ -1004,9 +1011,15 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 			case '\\':
 				e.WriteByte('\\')
 				e.WriteByte(b)
+			case 0x08:
+				e.WriteByte('\\')
+				e.WriteByte('b')
 			case '\n':
 				e.WriteByte('\\')
 				e.WriteByte('n')
+			case 0x0c:
+				e.WriteByte('\\')
+				e.WriteByte('f')
 			case '\r':
 				e.WriteByte('\\')
 				e.WriteByte('r')
@@ -1032,7 +1045,9 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 			if start < i {
 				e.Write(s[start:i])
 			}
-			e.WriteString(`\ufffd`)
+			e.WriteString(`\u00`)
+			e.WriteByte(hex[s[i]>>4])
+			e.WriteByte(hex[s[i]&0xF])
 			i += size
 			start = i
 			continue

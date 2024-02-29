@@ -100,8 +100,8 @@ func TestEncoderSetEscapeHTML(t *testing.T) {
 		want       string
 	}{
 		{"c", c, `"\u003C\u0026\u003E"`, `"<&>"`},
-		{"ct", ct, `"\u0022\u003C\u0026\u003E\u0022"`, `"\u0022<&>\u0022"`},
-		{`"<&>"`, "<&>", `"\u003C\u0026\u003E"`, `"<&>"`},
+		{"ct", ct, `"\u0022\u003C\u0026\u003E\u0022"`, `"\u0022<\u0026>\u0022"`},
+		{`"<&>"`, "<&>", `"\u003C\u0026\u003E"`, `"<\u0026>"`},
 	} {
 		var buf bytes.Buffer
 		enc := NewEncoder(&buf)

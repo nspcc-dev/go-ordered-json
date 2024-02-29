@@ -1,35 +1,18 @@
-nspcc-dev fork of go-ordered-json
-===============
+.NET-compatible JSON library
+============================
 
-There are some legacy/stupid applications[1] that you need to interoperate with,
-and they for whatever reason require that the JSON you're using is ordered in
-a particular way (contrary to the JSON specifications).
+It's made for 100% compatibility with the JSON variation used by
+[Neo blockchain](https://github.com/neo-project/). There are three problems
+there:
+ * it's ordered (that's why it's a fork of [go-ordered-json](https://github.com/virtuald/go-ordered-json))
+ * it has different conventions regarding control and "special" symbols
+ * it has different conventions wrt incorrect UTF-8
 
-Unfortunately, the golang authors are not willing to support such a broken use
-case, so on [their advice](https://groups.google.com/forum/#!topic/golang-dev/zBQwhm3VfvU)
-this is a fork of the golang encoding/json package, with the ordered JSON
-support originating with a patch from
-[Peter Waldschmidt](https://go-review.googlesource.com/c/7930/).
+The primary user of this library is [NeoGo](https://github.com/nspcc-dev/neo-go/),
+it has to be 100% compatible with C# implementation to correctly process
+transactions, that's why we're maintaining this library and solving any
+inconsistencies with .NET libraries if found.
 
 **If you can, you should avoid using this package**. However, if you can't
 avoid it, then you are welcome to. Provided under the MIT license, just like
 golang.
-
-Known broken applications 
--------------------------
-
-* [1][Windows Communication Foundation Json __type ordering](https://docs.microsoft.com/en-us/dotnet/framework/wcf/feature-details/stand-alone-json-serialization#type-hint-position-in-json-objects)
-* [2][NEO node](https://github.com/neo-project/neo/tree/master/src/neo/IO/Json)
-
-Fork motivations
--------------------------
-
-NEO project has its own implementation of JSON serializer which is more a JSON
-dialect rather than standard-compatible implementation. Until JSON serialisation
-format affects contract states we need to be byte-to-byte compatible with the
-reference JSON serializer. This fork contains the following compatibility quirks:
-
-* JSON serializer is ordered (see https://github.com/nspcc-dev/neo-go/pull/2026) (implemented in the original [virtuald/go-ordered-json](https://github.com/virtuald/go-ordered-json) repository)
-* JSON serializer escapes non-ascii characters while marshalling (see https://github.com/nspcc-dev/neo-go/pull/2174)
-
-More compatibility quirks may be added in the future.

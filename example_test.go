@@ -6,8 +6,8 @@ package json_test
 
 import (
 	"bytes"
-	"github.com/virtuald/go-ordered-json"
 	"fmt"
+	"github.com/virtuald/go-ordered-json"
 	"io"
 	"log"
 	"os"
