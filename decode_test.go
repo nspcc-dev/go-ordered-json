@@ -372,12 +372,12 @@ func (b *intWithPtrMarshalText) UnmarshalText(data []byte) error {
 }
 
 type unmarshalTest struct {
-	in        string
-	ptr       interface{}
-	out       interface{}
-	err       error
-	useNumber bool
-	golden    bool
+	in               string
+	ptr              interface{}
+	out              interface{}
+	err              error
+	useNumber        bool
+	golden           bool
 	useOrderedObject bool
 }
 

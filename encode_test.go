@@ -231,7 +231,6 @@ func (CText) MarshalText() ([]byte, error) {
 	return []byte(`"<&>"`), nil
 }
 
-
 func TestMarshaler_NeoGo_PR2174(t *testing.T) {
 	source := "IOU（欠条币）：一种支持负数的NEP-17（非严格意义上的）资产，合约无存储区，账户由区块链浏览器统计"
 	b, err := Marshal(source)
