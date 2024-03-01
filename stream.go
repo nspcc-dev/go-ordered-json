@@ -31,12 +31,12 @@ func NewDecoder(r io.Reader) *Decoder {
 	return &Decoder{r: r}
 }
 
-// UseNumber causes the Decoder to unmarshal a number into an interface{} as a
+// UseNumber causes the Decoder to unmarshal a number into an any as a
 // Number instead of as a float64.
 func (dec *Decoder) UseNumber() { dec.d.useNumber = true }
 
-// UseOrderedObject causes the Decoder to unmarshal an object into an interface{}
-// as a OrderedObject instead of as a map[string]interface{}.
+// UseOrderedObject causes the Decoder to unmarshal an object into an any
+// as a OrderedObject instead of as a map[string]any.
 func (dec *Decoder) UseOrderedObject() { dec.d.useOrderedObject = true }
 
 // Decode reads the next JSON-encoded value from its
@@ -44,7 +44,7 @@ func (dec *Decoder) UseOrderedObject() { dec.d.useOrderedObject = true }
 //
 // See the documentation for Unmarshal for details about
 // the conversion of JSON into a Go value.
-func (dec *Decoder) Decode(v interface{}) error {
+func (dec *Decoder) Decode(v any) error {
 	if dec.err != nil {
 		return dec.err
 	}
@@ -116,7 +116,7 @@ Input:
 		// Did the last read have an error?
 		// Delayed until now to allow buffer scan.
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				if dec.scan.step(&dec.scan, ' ') == scanEnd {
 					break Input
 				}
@@ -189,7 +189,7 @@ func NewEncoder(w io.Writer) *Encoder {
 //
 // See the documentation for Marshal for details about the
 // conversion of Go values to JSON.
-func (enc *Encoder) Encode(v interface{}) error {
+func (enc *Encoder) Encode(v any) error {
 	if enc.err != nil {
 		return enc.err
 	}
@@ -273,7 +273,7 @@ var _ Unmarshaler = (*RawMessage)(nil)
 // Member is used to store key/value pairs in an OrderedObject.
 type Member struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 
 // OrderedObject stores the key/value pairs of a JSON object in the order
@@ -288,9 +288,9 @@ type Member struct {
 //	var oa []OrderedObject
 //	Unmarshal(json, &oa)    // decode an array of JSON objects, while preserving key order
 //
-//	var v interface{}
+//	var v any
 //	d := new Decoder(json)
-//	d.UseOrderedObject()    // decode all JSON objects as OrderedObject rather than map[string]interface{}
+//	d.UseOrderedObject()    // decode all JSON objects as OrderedObject rather than map[string]any
 //	d.Decode(&v)
 //
 //	type A struct {
@@ -327,7 +327,7 @@ type OrderedObject []Member
 //	Number, for JSON numbers
 //	string, for JSON string literals
 //	nil, for JSON null
-type Token interface{}
+type Token any
 
 const (
 	tokenTopValue = iota
@@ -341,7 +341,7 @@ const (
 	tokenObjectComma
 )
 
-// advance tokenstate from a separator state to a value state
+// advance tokenstate from a separator state to a value state.
 func (dec *Decoder) tokenPrepareForDecode() error {
 	// Note: Not calling peek before switch, to avoid
 	// putting peek into the standard Decode path.
@@ -492,7 +492,7 @@ func (dec *Decoder) Token() (Token, error) {
 			if !dec.tokenValueAllowed() {
 				return dec.tokenError(c)
 			}
-			var x interface{}
+			var x any
 			if err := dec.Decode(&x); err != nil {
 				clearOffset(err)
 				return nil, err

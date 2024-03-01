@@ -53,8 +53,8 @@ import (
 //	bool, for JSON booleans
 //	float64, for JSON numbers
 //	string, for JSON strings
-//	[]interface{}, for JSON arrays
-//	map[string]interface{}, for JSON objects
+//	[]any, for JSON arrays
+//	map[string]any, for JSON objects
 //	nil for JSON null
 //
 // To unmarshal a JSON array into a slice, Unmarshal resets the slice length
@@ -92,7 +92,7 @@ import (
 // invalid UTF-16 surrogate pairs are not treated as an error.
 // Instead, they are replaced by the Unicode replacement
 // character U+FFFD.
-func Unmarshal(data []byte, v interface{}) error {
+func Unmarshal(data []byte, v any) error {
 	// Check for well-formedness.
 	// Avoids filling out half a data structure
 	// before discovering a JSON syntax error.
@@ -165,7 +165,7 @@ func (e *InvalidUnmarshalError) Error() string {
 	return "json: Unmarshal(nil " + e.Type.String() + ")"
 }
 
-func (d *decodeState) unmarshal(v interface{}) (err error) {
+func (d *decodeState) unmarshal(v any) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if _, ok := r.(runtime.Error); ok {
@@ -305,7 +305,7 @@ func (d *decodeState) saveError(err error) {
 	}
 }
 
-// addErrorContext returns a new error enhanced with information from d.errorContext
+// addErrorContext returns a new error enhanced with information from d.errorContext.
 func (d *decodeState) addErrorContext(err error) error {
 	if d.errorContext.Struct != "" || d.errorContext.Field != "" {
 		switch err := err.(type) {
@@ -374,7 +374,7 @@ func (d *decodeState) scanWhile(op int) int {
 // by different goroutines unmarshalling skipped fields.
 var (
 	discardObject = reflect.ValueOf(struct{}{})
-	discardArray  = reflect.ValueOf([0]interface{}{})
+	discardArray  = reflect.ValueOf([0]any{})
 )
 
 // value decodes a JSON value from d.data[d.off:] into the value.
@@ -408,7 +408,7 @@ type unquotedValue struct{}
 // quoted string literal or literal null into an interface value.
 // If it finds anything other than a quoted string literal or null,
 // valueQuoted returns unquotedValue{}.
-func (d *decodeState) valueQuoted() interface{} {
+func (d *decodeState) valueQuoted() any {
 	switch op := d.scanWhile(scanSkipSpace); op {
 	default:
 		d.error(errPhase)
@@ -802,7 +802,7 @@ func (d *decodeState) literal(v reflect.Value) {
 
 // convertNumber converts the number literal s to a float64 or a Number
 // depending on the setting of d.useNumber.
-func (d *decodeState) convertNumber(s string) (interface{}, error) {
+func (d *decodeState) convertNumber(s string) (any, error) {
 	if d.useNumber {
 		return Number(s), nil
 	}
@@ -883,6 +883,7 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 		case reflect.Interface, reflect.Ptr, reflect.Map, reflect.Slice:
 			v.Set(reflect.Zero(v.Type()))
 			// otherwise, ignore null for primitives/string
+		default:
 		}
 	case 't', 'f': // true, false
 		value := item[0] == 't'
@@ -1009,8 +1010,8 @@ func (d *decodeState) literalStore(item []byte, v reflect.Value, fromQuoted bool
 // in an empty interface. They are not strictly necessary,
 // but they avoid the weight of reflection in this common case.
 
-// valueInterface is like value but returns interface{}
-func (d *decodeState) valueInterface() interface{} {
+// valueInterface is like value but returns any.
+func (d *decodeState) valueInterface() any {
 	switch d.scanWhile(scanSkipSpace) {
 	default:
 		d.error(errPhase)
@@ -1024,9 +1025,9 @@ func (d *decodeState) valueInterface() interface{} {
 	}
 }
 
-// arrayInterface is like array but returns []interface{}.
-func (d *decodeState) arrayInterface() []interface{} {
-	var v = make([]interface{}, 0)
+// arrayInterface is like array but returns []any.
+func (d *decodeState) arrayInterface() []any {
+	var v = make([]any, 0)
 	for {
 		// Look ahead for ] - can only happen on first iteration.
 		op := d.scanWhile(scanSkipSpace)
@@ -1052,9 +1053,9 @@ func (d *decodeState) arrayInterface() []interface{} {
 	return v
 }
 
-// objectInterface is like object but returns map[string]interface{} or []OrderedObject.
-func (d *decodeState) objectInterface(forceOrderedObject bool) interface{} {
-	m := make(map[string]interface{})
+// objectInterface is like object but returns map[string]any or []OrderedObject.
+func (d *decodeState) objectInterface(forceOrderedObject bool) any {
+	m := make(map[string]any)
 	v := make(OrderedObject, 0)
 	for {
 		// Read opening " of string key or closing }.
@@ -1109,7 +1110,7 @@ func (d *decodeState) objectInterface(forceOrderedObject bool) interface{} {
 }
 
 // literalInterface is like literal but returns an interface value.
-func (d *decodeState) literalInterface() interface{} {
+func (d *decodeState) literalInterface() any {
 	// All bytes inside literal return scanContinue op code.
 	start := d.off - 1
 	op := d.scanWhile(scanContinue)

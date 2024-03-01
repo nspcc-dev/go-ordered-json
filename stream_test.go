@@ -6,8 +6,8 @@ package json
 
 import (
 	"bytes"
+	"errors"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -19,14 +19,14 @@ import (
 
 // Test values for the stream test.
 // One of each JSON kind.
-var streamTest = []interface{}{
+var streamTest = []any{
 	0.1,
 	"hello",
 	nil,
 	true,
 	false,
-	[]interface{}{"a", "b", "c"},
-	map[string]interface{}{"K": "Kelvin", "ß": "long s"},
+	[]any{"a", "b", "c"},
+	map[string]any{"K": "Kelvin", "ß": "long s"},
 	3.14, // another value to make sure something can follow map
 }
 
@@ -82,7 +82,10 @@ func TestEncoderIndent(t *testing.T) {
 	enc := NewEncoder(&buf)
 	enc.SetIndent(">", ".")
 	for _, v := range streamTest {
-		enc.Encode(v)
+		err := enc.Encode(v)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 	if have, want := buf.String(), streamEncodedIndent; have != want {
 		t.Error("indented encoding mismatch")
@@ -95,7 +98,7 @@ func TestEncoderSetEscapeHTML(t *testing.T) {
 	var ct CText
 	for _, tt := range []struct {
 		name       string
-		v          interface{}
+		v          any
 		wantEscape string
 		want       string
 	}{
@@ -136,7 +139,7 @@ func TestDecoder(t *testing.T) {
 				buf.WriteRune(c)
 			}
 		}
-		out := make([]interface{}, i)
+		out := make([]any, i)
 		dec := NewDecoder(&buf)
 		for j := range out {
 			if err := dec.Decode(&out[j]); err != nil {
@@ -168,7 +171,7 @@ func TestDecoderBuffered(t *testing.T) {
 	if m.Name != "Gopher" {
 		t.Errorf("Name = %q; want Gopher", m.Name)
 	}
-	rest, err := ioutil.ReadAll(d.Buffered())
+	rest, err := io.ReadAll(d.Buffered())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,8 +252,13 @@ var blockingTests = []string{
 func TestBlocking(t *testing.T) {
 	for _, enc := range blockingTests {
 		r, w := net.Pipe()
-		go w.Write([]byte(enc))
-		var val interface{}
+		go func() {
+			_, err := w.Write([]byte(enc))
+			if err != nil {
+				t.Error(err)
+			}
+		}()
+		var val any
 
 		// If Decode reads beyond what w.Write writes above,
 		// it will block, and the test will deadlock.
@@ -270,7 +278,7 @@ func BenchmarkEncoderEncode(b *testing.B) {
 	v := &T{"foo", "bar"}
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			if err := NewEncoder(ioutil.Discard).Encode(v); err != nil {
+			if err := NewEncoder(io.Discard).Encode(v); err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -279,72 +287,72 @@ func BenchmarkEncoderEncode(b *testing.B) {
 
 type tokenStreamCase struct {
 	json      string
-	expTokens []interface{}
+	expTokens []any
 }
 
 type decodeThis struct {
-	v interface{}
+	v any
 }
 
 var tokenStreamCases []tokenStreamCase = []tokenStreamCase{
 	// streaming token cases
-	{json: `10`, expTokens: []interface{}{float64(10)}},
-	{json: ` [10] `, expTokens: []interface{}{
+	{json: `10`, expTokens: []any{float64(10)}},
+	{json: ` [10] `, expTokens: []any{
 		Delim('['), float64(10), Delim(']')}},
-	{json: ` [false,10,"b"] `, expTokens: []interface{}{
+	{json: ` [false,10,"b"] `, expTokens: []any{
 		Delim('['), false, float64(10), "b", Delim(']')}},
-	{json: `{ "a": 1 }`, expTokens: []interface{}{
+	{json: `{ "a": 1 }`, expTokens: []any{
 		Delim('{'), "a", float64(1), Delim('}')}},
-	{json: `{"a": 1, "b":"3"}`, expTokens: []interface{}{
+	{json: `{"a": 1, "b":"3"}`, expTokens: []any{
 		Delim('{'), "a", float64(1), "b", "3", Delim('}')}},
-	{json: ` [{"a": 1},{"a": 2}] `, expTokens: []interface{}{
+	{json: ` [{"a": 1},{"a": 2}] `, expTokens: []any{
 		Delim('['),
 		Delim('{'), "a", float64(1), Delim('}'),
 		Delim('{'), "a", float64(2), Delim('}'),
 		Delim(']')}},
-	{json: `{"obj": {"a": 1}}`, expTokens: []interface{}{
+	{json: `{"obj": {"a": 1}}`, expTokens: []any{
 		Delim('{'), "obj", Delim('{'), "a", float64(1), Delim('}'),
 		Delim('}')}},
-	{json: `{"obj": [{"a": 1}]}`, expTokens: []interface{}{
+	{json: `{"obj": [{"a": 1}]}`, expTokens: []any{
 		Delim('{'), "obj", Delim('['),
 		Delim('{'), "a", float64(1), Delim('}'),
 		Delim(']'), Delim('}')}},
 
 	// streaming tokens with intermittent Decode()
-	{json: `{ "a": 1 }`, expTokens: []interface{}{
+	{json: `{ "a": 1 }`, expTokens: []any{
 		Delim('{'), "a",
 		decodeThis{float64(1)},
 		Delim('}')}},
-	{json: ` [ { "a" : 1 } ] `, expTokens: []interface{}{
+	{json: ` [ { "a" : 1 } ] `, expTokens: []any{
 		Delim('['),
-		decodeThis{map[string]interface{}{"a": float64(1)}},
+		decodeThis{map[string]any{"a": float64(1)}},
 		Delim(']')}},
-	{json: ` [{"a": 1},{"a": 2}] `, expTokens: []interface{}{
+	{json: ` [{"a": 1},{"a": 2}] `, expTokens: []any{
 		Delim('['),
-		decodeThis{map[string]interface{}{"a": float64(1)}},
-		decodeThis{map[string]interface{}{"a": float64(2)}},
+		decodeThis{map[string]any{"a": float64(1)}},
+		decodeThis{map[string]any{"a": float64(2)}},
 		Delim(']')}},
-	{json: `{ "obj" : [ { "a" : 1 } ] }`, expTokens: []interface{}{
+	{json: `{ "obj" : [ { "a" : 1 } ] }`, expTokens: []any{
 		Delim('{'), "obj", Delim('['),
-		decodeThis{map[string]interface{}{"a": float64(1)}},
+		decodeThis{map[string]any{"a": float64(1)}},
 		Delim(']'), Delim('}')}},
 
-	{json: `{"obj": {"a": 1}}`, expTokens: []interface{}{
+	{json: `{"obj": {"a": 1}}`, expTokens: []any{
 		Delim('{'), "obj",
-		decodeThis{map[string]interface{}{"a": float64(1)}},
+		decodeThis{map[string]any{"a": float64(1)}},
 		Delim('}')}},
-	{json: `{"obj": [{"a": 1}]}`, expTokens: []interface{}{
+	{json: `{"obj": [{"a": 1}]}`, expTokens: []any{
 		Delim('{'), "obj",
-		decodeThis{[]interface{}{
-			map[string]interface{}{"a": float64(1)},
+		decodeThis{[]any{
+			map[string]any{"a": float64(1)},
 		}},
 		Delim('}')}},
-	{json: ` [{"a": 1} {"a": 2}] `, expTokens: []interface{}{
+	{json: ` [{"a": 1} {"a": 2}] `, expTokens: []any{
 		Delim('['),
-		decodeThis{map[string]interface{}{"a": float64(1)}},
+		decodeThis{map[string]any{"a": float64(1)}},
 		decodeThis{&SyntaxError{"expected comma after array element", 0}},
 	}},
-	{json: `{ "a" 1 }`, expTokens: []interface{}{
+	{json: `{ "a" 1 }`, expTokens: []any{
 		Delim('{'), "a",
 		decodeThis{&SyntaxError{"expected colon after object key", 0}},
 	}},
@@ -357,7 +365,7 @@ func TestDecodeInStream(t *testing.T) {
 		dec := NewDecoder(strings.NewReader(tcase.json))
 		for i, etk := range tcase.expTokens {
 
-			var tk interface{}
+			var tk any
 			var err error
 
 			if dt, ok := etk.(decodeThis); ok {
@@ -371,7 +379,7 @@ func TestDecodeInStream(t *testing.T) {
 					t.Errorf("case %v: Expected error %v in %q, but was %v", ci, experr, tcase.json, err)
 				}
 				break
-			} else if err == io.EOF {
+			} else if errors.Is(err, io.EOF) {
 				t.Errorf("case %v: Unexpected EOF in %q", ci, tcase.json)
 				break
 			} else if err != nil {
@@ -392,7 +400,10 @@ func TestHTTPDecoding(t *testing.T) {
 	const raw = `{ "foo": "bar" }`
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(raw))
+		_, err := w.Write([]byte(raw))
+		if err != nil {
+			t.Error(err)
+		}
 	}))
 	defer ts.Close()
 	res, err := http.Get(ts.URL)

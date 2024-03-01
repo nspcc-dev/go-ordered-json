@@ -26,8 +26,6 @@ import (
 	"unicode"
 	"unicode/utf16"
 	"unicode/utf8"
-	// new in golang 1.9
-	"golang.org/x/sync/syncmap"
 )
 
 // Marshal returns the JSON encoding of v.
@@ -161,7 +159,7 @@ import (
 // JSON cannot represent cyclic data structures and Marshal does not
 // handle them. Passing cyclic structures to Marshal will result in
 // an infinite recursion.
-func Marshal(v interface{}) ([]byte, error) {
+func Marshal(v any) ([]byte, error) {
 	e := &encodeState{}
 	err := e.marshal(v, encOpts{escapeHTML: true})
 	if err != nil {
@@ -171,7 +169,7 @@ func Marshal(v interface{}) ([]byte, error) {
 }
 
 // MarshalIndent is like Marshal but applies Indent to format the output.
-func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
+func MarshalIndent(v any, prefix, indent string) ([]byte, error) {
 	b, err := Marshal(v)
 	if err != nil {
 		return nil, err
@@ -286,7 +284,7 @@ func newEncodeState() *encodeState {
 	return new(encodeState)
 }
 
-func (e *encodeState) marshal(v interface{}, opts encOpts) (err error) {
+func (e *encodeState) marshal(v any, opts encOpts) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if _, ok := r.(runtime.Error); ok {
@@ -320,6 +318,7 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.Float() == 0
 	case reflect.Interface, reflect.Ptr:
 		return v.IsNil()
+	default:
 	}
 	return false
 }
@@ -337,7 +336,7 @@ type encOpts struct {
 
 type encoderFunc func(e *encodeState, v reflect.Value, opts encOpts)
 
-var encoderCache syncmap.Map // map[reflect.Type]encoderFunc
+var encoderCache sync.Map // map[reflect.Type]encoderFunc
 
 func valueEncoder(v reflect.Value) encoderFunc {
 	if !v.IsValid() {
@@ -742,7 +741,10 @@ func encodeByteSlice(e *encodeState, v reflect.Value, _ encOpts) {
 		// for large buffers, avoid unnecessary extra temporary
 		// buffer space.
 		enc := base64.NewEncoder(base64.StdEncoding, e)
-		enc.Write(s)
+		_, err := enc.Write(s)
+		if err != nil {
+			panic(err)
+		}
 		enc.Close()
 	}
 	e.WriteByte('"')
@@ -894,6 +896,7 @@ func (w *reflectWithString) resolve() error {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		w.s = strconv.FormatUint(w.v.Uint(), 10)
 		return nil
+	default:
 	}
 	panic("unexpected map key type")
 }
@@ -1135,7 +1138,7 @@ func typeFields(t reflect.Type) []field {
 	next := []field{{typ: t}}
 
 	// Count of queued names for current level and the next.
-	count := map[reflect.Type]int{}
+	var count map[reflect.Type]int
 	nextCount := map[reflect.Type]int{}
 
 	// Types already visited at an earlier level.
@@ -1188,6 +1191,7 @@ func typeFields(t reflect.Type) []field {
 						reflect.Float32, reflect.Float64,
 						reflect.String:
 						quoted = true
+					default:
 					}
 				}
 

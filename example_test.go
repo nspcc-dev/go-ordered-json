@@ -6,12 +6,14 @@ package json_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"github.com/virtuald/go-ordered-json"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	json "github.com/nspcc-dev/go-ordered-json"
 )
 
 func ExampleMarshal() {
@@ -68,7 +70,7 @@ func ExampleDecoder() {
 	dec := json.NewDecoder(strings.NewReader(jsonStream))
 	for {
 		var m Message
-		if err := dec.Decode(&m); err == io.EOF {
+		if err := dec.Decode(&m); errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
 			log.Fatal(err)
@@ -91,7 +93,7 @@ func ExampleDecoder_Token() {
 	dec := json.NewDecoder(strings.NewReader(jsonStream))
 	for {
 		t, err := dec.Token()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -201,7 +203,7 @@ func ExampleRawMessage_unmarshal() {
 	}
 
 	for _, c := range colors {
-		var dst interface{}
+		var dst any
 		switch c.Space {
 		case "RGB":
 			dst = new(RGB)
@@ -259,8 +261,8 @@ func ExampleIndent() {
 	}
 
 	var out bytes.Buffer
-	json.Indent(&out, b, "=", "\t")
-	out.WriteTo(os.Stdout)
+	_ = json.Indent(&out, b, "=", "\t")
+	_, _ = out.WriteTo(os.Stdout)
 	// Output:
 	// [
 	// =	{
@@ -311,5 +313,5 @@ func ExampleOrderedObject() {
 	//  name=Issac Newton born=1643 died=1727
 	//  name=André-Marie Ampère born=1777 died=1836
 	// Encoded:
-	//  {"name":"Hans Christian Ørsted","born":1777,"died":1851,"nationality":"Danish"}
+	//  {"name":"Hans Christian \u00D8rsted","born":1777,"died":1851,"nationality":"Danish"}
 }

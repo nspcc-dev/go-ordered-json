@@ -57,11 +57,11 @@ type misnamedTag struct {
 }
 
 type badFormatTag struct {
-	Y string `:"BadFormat"`
+	Y string `:"BadFormat"` //nolint:govet // It's intentionally wrong.
 }
 
 type badCodeTag struct {
-	Z string `json:" !\"#&'()*+,."`
+	Z string `json:" !\"#&'()*+,."` //nolint:staticcheck // It's intentionally wrong.
 }
 
 type spaceTag struct {
@@ -73,7 +73,7 @@ type unicodeTag struct {
 }
 
 var structTagObjectKeyTests = []struct {
-	raw   interface{}
+	raw   any
 	value string
 	key   string
 }{
@@ -101,12 +101,12 @@ func TestStructTagObjectKey(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Marshal(%#q) failed: %v", tt.raw, err)
 		}
-		var f interface{}
+		var f any
 		err = Unmarshal(b, &f)
 		if err != nil {
 			t.Fatalf("Unmarshal(%#q) failed: %v", b, err)
 		}
-		for i, v := range f.(map[string]interface{}) {
+		for i, v := range f.(map[string]any) {
 			switch i {
 			case tt.key:
 				if s, ok := v.(string); !ok || s != tt.value {
