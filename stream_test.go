@@ -198,7 +198,7 @@ func TestRawMessage(t *testing.T) {
 	// TODO(rsc): Should not need the * in *RawMessage
 	var data struct {
 		X  float64
-		Id *RawMessage
+		Id *RawMessage //nolint:revive // It's "Id" in JSON and it's a test.
 		Y  float32
 	}
 	const raw = `["\u0056",null]`
@@ -223,7 +223,7 @@ func TestNullRawMessage(t *testing.T) {
 	// TODO(rsc): Should not need the * in *RawMessage
 	var data struct {
 		X  float64
-		Id *RawMessage
+		Id *RawMessage //nolint:revive // It's "Id" in JSON and it's a test.
 		Y  float32
 	}
 	data.Id = new(RawMessage)
