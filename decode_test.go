@@ -1857,7 +1857,7 @@ var decodeTypeErrorTests = []struct {
 func TestUnmarshalTypeError(t *testing.T) {
 	for _, item := range decodeTypeErrorTests {
 		err := Unmarshal([]byte(item.src), item.dest)
-		if _, ok := err.(*UnmarshalTypeError); !ok {
+		if _, ok := err.(*UnmarshalTypeError); !ok { //nolint:errorlint // It must match exactly, it's a test.
 			t.Errorf("expected type error for Unmarshal(%q, type %T): got %T",
 				item.src, item.dest, err)
 		}
@@ -1879,7 +1879,7 @@ func TestUnmarshalSyntax(t *testing.T) {
 	var x any
 	for _, src := range unmarshalSyntaxTests {
 		err := Unmarshal([]byte(src), &x)
-		if _, ok := err.(*SyntaxError); !ok {
+		if _, ok := err.(*SyntaxError); !ok { //nolint:errorlint // It must match exactly, it's a test.
 			t.Errorf("expected syntax error for Unmarshal(%q): got %T", src, err)
 		}
 	}
