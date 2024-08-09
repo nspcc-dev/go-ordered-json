@@ -423,7 +423,7 @@ func TestHTTPDecoding(t *testing.T) {
 
 	// make sure we get the EOF the second time
 	err = d.Decode(&foo)
-	if err != io.EOF {
+	if !errors.Is(err, io.EOF) {
 		t.Errorf("err = %v; want io.EOF", err)
 	}
 }
