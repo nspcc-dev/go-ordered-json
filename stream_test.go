@@ -294,7 +294,7 @@ type decodeThis struct {
 	v any
 }
 
-var tokenStreamCases []tokenStreamCase = []tokenStreamCase{
+var tokenStreamCases = []tokenStreamCase{
 	// streaming token cases
 	{json: `10`, expTokens: []any{float64(10)}},
 	{json: ` [10] `, expTokens: []any{

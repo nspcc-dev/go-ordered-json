@@ -714,7 +714,7 @@ func orderedObjectEncoder(e *encodeState, v reflect.Value, opts encOpts) {
 		return
 	}
 	e.WriteByte('{')
-	var ov OrderedObject = v.Interface().(OrderedObject)
+	var ov = v.Interface().(OrderedObject)
 	for i, o := range ov {
 		if i > 0 {
 			e.WriteByte(',')
