@@ -359,12 +359,9 @@ var tokenStreamCases []tokenStreamCase = []tokenStreamCase{
 }
 
 func TestDecodeInStream(t *testing.T) {
-
 	for ci, tcase := range tokenStreamCases {
-
 		dec := NewDecoder(strings.NewReader(tcase.json))
 		for i, etk := range tcase.expTokens {
-
 			var tk any
 			var err error
 
@@ -392,7 +389,6 @@ func TestDecodeInStream(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 // Test from golang.org/issue/11893.
