@@ -1104,9 +1104,8 @@ func (d *decodeState) objectInterface(forceOrderedObject bool) any {
 
 	if d.useOrderedObject || forceOrderedObject {
 		return v
-	} else {
-		return m
 	}
+	return m
 }
 
 // literalInterface is like literal but returns an interface value.
