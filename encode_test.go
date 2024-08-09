@@ -547,7 +547,7 @@ func TestHTMLEscape(t *testing.T) {
 	}
 }
 
-// golang.org/issue/8582
+// golang.org/issue/8582.
 func TestEncodePointerString(t *testing.T) {
 	type stringPointer struct {
 		N *int64 `json:"n,string"`
@@ -625,7 +625,7 @@ func tenc(format string, a ...any) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Issue 13783
+// Issue 13783.
 func TestEncodeBytekind(t *testing.T) {
 	testdata := []struct {
 		data any
