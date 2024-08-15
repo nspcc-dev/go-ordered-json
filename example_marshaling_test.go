@@ -59,7 +59,7 @@ func Example_customMarshalJSON() {
 
 	census := make(map[Animal]int)
 	for _, animal := range zoo {
-		census[animal] += 1
+		census[animal]++
 	}
 
 	fmt.Printf("Zoo Census:\n* Gophers: %d\n* Zebras:  %d\n* Unknown: %d\n",

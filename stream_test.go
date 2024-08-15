@@ -198,7 +198,7 @@ func TestRawMessage(t *testing.T) {
 	// TODO(rsc): Should not need the * in *RawMessage
 	var data struct {
 		X  float64
-		Id *RawMessage
+		Id *RawMessage //nolint:revive // It's "Id" in JSON and it's a test.
 		Y  float32
 	}
 	const raw = `["\u0056",null]`
@@ -223,7 +223,7 @@ func TestNullRawMessage(t *testing.T) {
 	// TODO(rsc): Should not need the * in *RawMessage
 	var data struct {
 		X  float64
-		Id *RawMessage
+		Id *RawMessage //nolint:revive // It's "Id" in JSON and it's a test.
 		Y  float32
 	}
 	data.Id = new(RawMessage)
@@ -294,7 +294,7 @@ type decodeThis struct {
 	v any
 }
 
-var tokenStreamCases []tokenStreamCase = []tokenStreamCase{
+var tokenStreamCases = []tokenStreamCase{
 	// streaming token cases
 	{json: `10`, expTokens: []any{float64(10)}},
 	{json: ` [10] `, expTokens: []any{
@@ -359,12 +359,9 @@ var tokenStreamCases []tokenStreamCase = []tokenStreamCase{
 }
 
 func TestDecodeInStream(t *testing.T) {
-
 	for ci, tcase := range tokenStreamCases {
-
 		dec := NewDecoder(strings.NewReader(tcase.json))
 		for i, etk := range tcase.expTokens {
-
 			var tk any
 			var err error
 
@@ -392,10 +389,9 @@ func TestDecodeInStream(t *testing.T) {
 			}
 		}
 	}
-
 }
 
-// Test from golang.org/issue/11893
+// Test from golang.org/issue/11893.
 func TestHTTPDecoding(t *testing.T) {
 	const raw = `{ "foo": "bar" }`
 
@@ -427,7 +423,7 @@ func TestHTTPDecoding(t *testing.T) {
 
 	// make sure we get the EOF the second time
 	err = d.Decode(&foo)
-	if err != io.EOF {
+	if !errors.Is(err, io.EOF) {
 		t.Errorf("err = %v; want io.EOF", err)
 	}
 }

@@ -18,6 +18,7 @@ import (
 	"math"
 	"reflect"
 	"runtime"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -713,7 +714,7 @@ func orderedObjectEncoder(e *encodeState, v reflect.Value, opts encOpts) {
 		return
 	}
 	e.WriteByte('{')
-	var ov OrderedObject = v.Interface().(OrderedObject)
+	var ov = v.Interface().(OrderedObject)
 	for i, o := range ov {
 		if i > 0 {
 			e.WriteByte(',')
@@ -1110,23 +1111,16 @@ func fillField(f field) field {
 	return f
 }
 
-// byIndex sorts field by index sequence.
-type byIndex []field
-
-func (x byIndex) Len() int { return len(x) }
-
-func (x byIndex) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
-
-func (x byIndex) Less(i, j int) bool {
-	for k, xik := range x[i].index {
-		if k >= len(x[j].index) {
-			return false
+func cmpFieldsByIndex(a, b field) int {
+	for k, ak := range a.index {
+		if k >= len(b.index) {
+			return 1
 		}
-		if xik != x[j].index[k] {
-			return xik < x[j].index[k]
+		if ak != b.index[k] {
+			return ak - b.index[k]
 		}
 	}
-	return len(x[i].index) < len(x[j].index)
+	return len(a.index) - len(b.index)
 }
 
 // typeFields returns a list of fields that JSON should recognize for the given type.
@@ -1242,7 +1236,7 @@ func typeFields(t reflect.Type) []field {
 		if x[i].tag != x[j].tag {
 			return x[i].tag
 		}
-		return byIndex(x).Less(i, j)
+		return cmpFieldsByIndex(x[i], x[j]) < 0
 	})
 
 	// Delete all fields that are hidden by the Go rules for embedded fields,
@@ -1274,7 +1268,7 @@ func typeFields(t reflect.Type) []field {
 	}
 
 	fields = out
-	sort.Sort(byIndex(fields))
+	slices.SortFunc(fields, cmpFieldsByIndex)
 
 	return fields
 }

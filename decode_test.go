@@ -42,7 +42,7 @@ type VOuter struct {
 }
 
 // ifaceNumAsFloat64/ifaceNumAsNumber are used to test unmarshaling with and
-// without UseNumber
+// without UseNumber.
 var ifaceNumAsFloat64 = map[string]any{
 	"k1": float64(1),
 	"k2": "s",
@@ -82,7 +82,7 @@ type unmarshalerText struct {
 	A, B string
 }
 
-// needed for re-marshaling tests
+// MarshalText is needed for re-marshaling tests.
 func (u unmarshalerText) MarshalText() ([]byte, error) {
 	return []byte(u.A + ":" + u.B), nil
 }
@@ -142,7 +142,7 @@ var (
 	umstructXY   = ustructText{unmarshalerText{"x", "y"}}
 
 	ummapType = map[unmarshalerText]bool{}
-	ummapXY   = map[unmarshalerText]bool{unmarshalerText{"x", "y"}: true}
+	ummapXY   = map[unmarshalerText]bool{{"x", "y"}: true}
 )
 
 // Test data structures for anonymous fields.
@@ -1028,7 +1028,7 @@ var numberTests = []struct {
 	{in: "1e1000", intErr: "strconv.ParseInt: parsing \"1e1000\": invalid syntax", floatErr: "strconv.ParseFloat: parsing \"1e1000\": value out of range"},
 }
 
-// Independent of Decode, basic coverage of the accessors in Number
+// Independent of Decode, basic coverage of the accessors in Number.
 func TestNumberAccessors(t *testing.T) {
 	for _, tt := range numberTests {
 		n := Number(tt.in)
@@ -1483,7 +1483,7 @@ func TestRefUnmarshal(t *testing.T) {
 }
 
 // Test that the empty string doesn't panic decoding when ,string is specified
-// Issue 3450
+// Issue 3450.
 func TestEmptyString(t *testing.T) {
 	type T2 struct {
 		Number1 int `json:",string"`
@@ -1640,7 +1640,7 @@ type NullTestStrings struct {
 }
 
 // JSON null values should be ignored for primitives and string values instead of resulting in an error.
-// Issue 2540
+// Issue 2540.
 func TestUnmarshalNulls(t *testing.T) {
 	// Unmarshal docs:
 	// The JSON null value unmarshals into an interface, map, pointer, or slice
@@ -1857,7 +1857,7 @@ var decodeTypeErrorTests = []struct {
 func TestUnmarshalTypeError(t *testing.T) {
 	for _, item := range decodeTypeErrorTests {
 		err := Unmarshal([]byte(item.src), item.dest)
-		if _, ok := err.(*UnmarshalTypeError); !ok {
+		if _, ok := err.(*UnmarshalTypeError); !ok { //nolint:errorlint // It must match exactly, it's a test.
 			t.Errorf("expected type error for Unmarshal(%q, type %T): got %T",
 				item.src, item.dest, err)
 		}
@@ -1879,14 +1879,14 @@ func TestUnmarshalSyntax(t *testing.T) {
 	var x any
 	for _, src := range unmarshalSyntaxTests {
 		err := Unmarshal([]byte(src), &x)
-		if _, ok := err.(*SyntaxError); !ok {
+		if _, ok := err.(*SyntaxError); !ok { //nolint:errorlint // It must match exactly, it's a test.
 			t.Errorf("expected syntax error for Unmarshal(%q): got %T", src, err)
 		}
 	}
 }
 
 // Test handling of unexported fields that should be ignored.
-// Issue 4660
+// Issue 4660.
 type unexportedFields struct {
 	Name string
 	m    map[string]any `json:"-"`    //nolint:unused // Not really used, but important for test.
@@ -1936,7 +1936,7 @@ func TestUnmarshalJSONLiteralError(t *testing.T) {
 
 // Test that extra object elements in an array do not result in a
 // "data changing underfoot" error.
-// Issue 3717
+// Issue 3717.
 func TestSkipArrayObjects(t *testing.T) {
 	json := `[{}]`
 	var dest [0]any
