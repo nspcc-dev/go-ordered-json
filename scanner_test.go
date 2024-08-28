@@ -7,7 +7,7 @@ package json
 import (
 	"bytes"
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"reflect"
 	"testing"
 )
@@ -275,16 +275,16 @@ func initBig() {
 
 func genValue(n int) any {
 	if n > 1 {
-		switch rand.Intn(2) {
+		switch rand.IntN(2) {
 		case 0:
 			return genArray(n)
 		case 1:
 			return genMap(n)
 		}
 	}
-	switch rand.Intn(3) {
+	switch rand.IntN(3) {
 	case 0:
-		return rand.Intn(2) == 0
+		return rand.IntN(2) == 0
 	case 1:
 		return rand.NormFloat64()
 	case 2:
