@@ -231,7 +231,7 @@ var benchScan scanner
 func BenchmarkSkipValue(b *testing.B) {
 	initBig()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_, _, _ = nextValue(jsonBig, &benchScan)
 	}
 	b.SetBytes(int64(len(jsonBig)))
@@ -330,7 +330,7 @@ func genMap(n int) map[string]any {
 		f = 1
 	}
 	x := make(map[string]any)
-	for i := 0; i < f; i++ {
+	for i := range f {
 		x[genString(10)] = genValue(((i+1)*n)/f - (i*n)/f)
 	}
 	return x

@@ -783,7 +783,7 @@ type arrayEncoder struct {
 func (ae *arrayEncoder) encode(e *encodeState, v reflect.Value, opts encOpts) {
 	e.WriteByte('[')
 	n := v.Len()
-	for i := 0; i < n; i++ {
+	for i := range n {
 		if i > 0 {
 			e.WriteByte(',')
 		}
@@ -1152,7 +1152,7 @@ func typeFields(t reflect.Type) []field {
 			visited[f.typ] = true
 
 			// Scan f.typ for fields to include.
-			for i := 0; i < f.typ.NumField(); i++ {
+			for i := range f.typ.NumField() {
 				sf := f.typ.Field(i)
 				if sf.PkgPath != "" && (!sf.Anonymous || sf.Type.Kind() != reflect.Struct) { // unexported
 					continue
