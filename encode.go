@@ -388,7 +388,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 		return marshalerEncoder
 	}
 	if t.Kind() != reflect.Ptr && allowAddr {
-		if reflect.PtrTo(t).Implements(marshalerType) {
+		if reflect.PointerTo(t).Implements(marshalerType) {
 			return newCondAddrEncoder(addrMarshalerEncoder, newTypeEncoder(t, false))
 		}
 	}
@@ -397,7 +397,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 		return textMarshalerEncoder
 	}
 	if t.Kind() != reflect.Ptr && allowAddr {
-		if reflect.PtrTo(t).Implements(textMarshalerType) {
+		if reflect.PointerTo(t).Implements(textMarshalerType) {
 			return newCondAddrEncoder(addrTextMarshalerEncoder, newTypeEncoder(t, false))
 		}
 	}
@@ -767,7 +767,7 @@ func (se *sliceEncoder) encode(e *encodeState, v reflect.Value, opts encOpts) {
 func newSliceEncoder(t reflect.Type) encoderFunc {
 	// Byte slices get special treatment; arrays don't.
 	if t.Elem().Kind() == reflect.Uint8 {
-		p := reflect.PtrTo(t.Elem())
+		p := reflect.PointerTo(t.Elem())
 		if !p.Implements(marshalerType) && !p.Implements(textMarshalerType) {
 			return encodeByteSlice
 		}
