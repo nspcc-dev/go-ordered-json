@@ -388,7 +388,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 		return marshalerEncoder
 	}
 	if t.Kind() != reflect.Ptr && allowAddr {
-		if reflect.PtrTo(t).Implements(marshalerType) {
+		if reflect.PointerTo(t).Implements(marshalerType) {
 			return newCondAddrEncoder(addrMarshalerEncoder, newTypeEncoder(t, false))
 		}
 	}
@@ -397,7 +397,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 		return textMarshalerEncoder
 	}
 	if t.Kind() != reflect.Ptr && allowAddr {
-		if reflect.PtrTo(t).Implements(textMarshalerType) {
+		if reflect.PointerTo(t).Implements(textMarshalerType) {
 			return newCondAddrEncoder(addrTextMarshalerEncoder, newTypeEncoder(t, false))
 		}
 	}
@@ -767,7 +767,7 @@ func (se *sliceEncoder) encode(e *encodeState, v reflect.Value, opts encOpts) {
 func newSliceEncoder(t reflect.Type) encoderFunc {
 	// Byte slices get special treatment; arrays don't.
 	if t.Elem().Kind() == reflect.Uint8 {
-		p := reflect.PtrTo(t.Elem())
+		p := reflect.PointerTo(t.Elem())
 		if !p.Implements(marshalerType) && !p.Implements(textMarshalerType) {
 			return encodeByteSlice
 		}
@@ -783,7 +783,7 @@ type arrayEncoder struct {
 func (ae *arrayEncoder) encode(e *encodeState, v reflect.Value, opts encOpts) {
 	e.WriteByte('[')
 	n := v.Len()
-	for i := 0; i < n; i++ {
+	for i := range n {
 		if i > 0 {
 			e.WriteByte(',')
 		}
@@ -1152,7 +1152,7 @@ func typeFields(t reflect.Type) []field {
 			visited[f.typ] = true
 
 			// Scan f.typ for fields to include.
-			for i := 0; i < f.typ.NumField(); i++ {
+			for i := range f.typ.NumField() {
 				sf := f.typ.Field(i)
 				if sf.PkgPath != "" && (!sf.Anonymous || sf.Type.Kind() != reflect.Struct) { // unexported
 					continue

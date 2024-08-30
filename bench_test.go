@@ -144,7 +144,7 @@ func BenchmarkDecoderStream(b *testing.B) {
 	}
 	ones := strings.Repeat(" 1\n", 300000) + "\n\n\n"
 	b.StartTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		if i%300000 == 0 {
 			buf.WriteString(ones)
 		}

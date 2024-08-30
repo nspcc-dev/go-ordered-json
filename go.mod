@@ -1,4 +1,3 @@
 module github.com/nspcc-dev/go-ordered-json
 
-go 1.21
-
+go 1.22

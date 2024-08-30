@@ -7,7 +7,7 @@ package json
 import (
 	"bytes"
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"reflect"
 	"testing"
 )
@@ -231,7 +231,7 @@ var benchScan scanner
 func BenchmarkSkipValue(b *testing.B) {
 	initBig()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_, _, _ = nextValue(jsonBig, &benchScan)
 	}
 	b.SetBytes(int64(len(jsonBig)))
@@ -275,16 +275,16 @@ func initBig() {
 
 func genValue(n int) any {
 	if n > 1 {
-		switch rand.Intn(2) {
+		switch rand.IntN(2) {
 		case 0:
 			return genArray(n)
 		case 1:
 			return genMap(n)
 		}
 	}
-	switch rand.Intn(3) {
+	switch rand.IntN(3) {
 	case 0:
-		return rand.Intn(2) == 0
+		return rand.IntN(2) == 0
 	case 1:
 		return rand.NormFloat64()
 	case 2:
@@ -330,7 +330,7 @@ func genMap(n int) map[string]any {
 		f = 1
 	}
 	x := make(map[string]any)
-	for i := 0; i < f; i++ {
+	for i := range f {
 		x[genString(10)] = genValue(((i+1)*n)/f - (i*n)/f)
 	}
 	return x
