@@ -15,7 +15,7 @@ env:
 jobs:
   test_cover:
     name: Coverage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     env:
       CGO_ENABLED: 0
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         go_versions: [ '1.22', '1.23' ]
-        os: [ubuntu-22.04, windows-2022, macos-14]
+        os: [ubuntu-latest, windows-2022, macos-14]
         exclude:
           # Only latest Go version for Windows and MacOS.
           - os: windows-2022
@@ -53,7 +53,7 @@ jobs:
           - os: macos-14
             go_versions: '1.22'
           # Exclude latest Go version for Ubuntu as Coverage uses it.
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             go_versions: '1.23'
       fail-fast: false
     steps:
