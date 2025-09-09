@@ -28,17 +28,10 @@ func (o tagOptions) Contains(optionName string) bool {
 	if len(o) == 0 {
 		return false
 	}
-	s := string(o)
-	for s != "" {
-		var next string
-		i := strings.Index(s, ",")
-		if i >= 0 {
-			s, next = s[:i], s[i+1:]
-		}
+	for s := range strings.FieldsFuncSeq(string(o), func(c rune) bool { return c == ',' }) {
 		if s == optionName {
 			return true
 		}
-		s = next
 	}
 	return false
 }
