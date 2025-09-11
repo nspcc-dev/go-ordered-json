@@ -230,8 +230,7 @@ var benchScan scanner
 
 func BenchmarkSkipValue(b *testing.B) {
 	initBig()
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		_, _, _ = nextValue(jsonBig, &benchScan)
 	}
 	b.SetBytes(int64(len(jsonBig)))
