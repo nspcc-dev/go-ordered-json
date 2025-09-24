@@ -982,10 +982,10 @@ func (e *encodeState) string(s string, escapeHTML bool) int {
 			e.WriteString(s[start:i])
 		}
 		if c < 0x10000 {
-			e.WriteString(fmt.Sprintf(`\u%04X`, c))
+			fmt.Fprintf(e, `\u%04X`, c)
 		} else {
 			r1, r2 := utf16.EncodeRune(c)
-			e.WriteString(fmt.Sprintf(`\u%04X\u%04X`, r1, r2))
+			fmt.Fprintf(e, `\u%04X\u%04X`, r1, r2)
 		}
 		i += size
 		start = i
@@ -1077,10 +1077,10 @@ func (e *encodeState) stringBytes(s []byte, escapeHTML bool) int {
 			e.Write(s[start:i])
 		}
 		if c < 0x10000 {
-			e.WriteString(fmt.Sprintf(`\u%04X`, c))
+			fmt.Fprintf(e, `\u%04X`, c)
 		} else {
 			r1, r2 := utf16.EncodeRune(c)
-			e.WriteString(fmt.Sprintf(`\u%04X\u%04X`, r1, r2))
+			fmt.Fprintf(e, `\u%04X\u%04X`, r1, r2)
 		}
 		i += size
 		start = i
