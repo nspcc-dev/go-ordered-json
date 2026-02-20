@@ -45,7 +45,7 @@ type punctuationTag struct {
 }
 
 type dashTag struct {
-	V string `json:"-,"`
+	V string `json:"-,"` // nolint:staticcheck // The test is written this way
 }
 
 type emptyTag struct {
