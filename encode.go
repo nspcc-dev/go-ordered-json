@@ -445,7 +445,7 @@ func marshalerEncoder(e *encodeState, v reflect.Value, opts encOpts) {
 		e.WriteString("null")
 		return
 	}
-	m, ok := v.Interface().(Marshaler)
+	m, ok := reflect.TypeAssert[Marshaler](v)
 	if !ok {
 		e.WriteString("null")
 		return
@@ -466,7 +466,7 @@ func addrMarshalerEncoder(e *encodeState, v reflect.Value, _ encOpts) {
 		e.WriteString("null")
 		return
 	}
-	m := va.Interface().(Marshaler)
+	m, _ := reflect.TypeAssert[Marshaler](va)
 	b, err := m.MarshalJSON()
 	if err == nil {
 		// copy JSON into buffer, checking validity.
@@ -482,7 +482,7 @@ func textMarshalerEncoder(e *encodeState, v reflect.Value, opts encOpts) {
 		e.WriteString("null")
 		return
 	}
-	m := v.Interface().(encoding.TextMarshaler)
+	m, _ := reflect.TypeAssert[encoding.TextMarshaler](v)
 	b, err := m.MarshalText()
 	if err != nil {
 		e.error(&MarshalerError{v.Type(), err})
@@ -496,7 +496,7 @@ func addrTextMarshalerEncoder(e *encodeState, v reflect.Value, opts encOpts) {
 		e.WriteString("null")
 		return
 	}
-	m := va.Interface().(encoding.TextMarshaler)
+	m, _ := reflect.TypeAssert[encoding.TextMarshaler](va)
 	b, err := m.MarshalText()
 	if err != nil {
 		e.error(&MarshalerError{v.Type(), err})
@@ -714,7 +714,7 @@ func orderedObjectEncoder(e *encodeState, v reflect.Value, opts encOpts) {
 		return
 	}
 	e.WriteByte('{')
-	var ov = v.Interface().(OrderedObject)
+	var ov, _ = reflect.TypeAssert[OrderedObject](v)
 	for i, o := range ov {
 		if i > 0 {
 			e.WriteByte(',')
@@ -885,7 +885,7 @@ func (w *reflectWithString) resolve() error {
 		w.s = w.v.String()
 		return nil
 	}
-	if tm, ok := w.v.Interface().(encoding.TextMarshaler); ok {
+	if tm, ok := reflect.TypeAssert[encoding.TextMarshaler](w.v); ok {
 		buf, err := tm.MarshalText()
 		w.s = string(buf)
 		return err
