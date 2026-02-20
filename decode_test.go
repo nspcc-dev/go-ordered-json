@@ -1890,7 +1890,7 @@ func TestUnmarshalSyntax(t *testing.T) {
 type unexportedFields struct {
 	Name string
 	m    map[string]any `json:"-"`    //nolint:unused // Not really used, but important for test.
-	m2   map[string]any `json:"abcd"` //nolint:unused,govet // Not really used and wrong, but important for test.
+	m2   map[string]any `json:"abcd"` //nolint:unused,govet,staticcheck // Not really used and wrong, but important for test.
 }
 
 func TestUnmarshalUnexported(t *testing.T) {
