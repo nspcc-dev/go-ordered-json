@@ -15,6 +15,7 @@ import (
 	"encoding"
 	"encoding/base64"
 	"fmt"
+	"maps"
 	"math"
 	"reflect"
 	"runtime"
@@ -376,9 +377,9 @@ func typeEncoder(t reflect.Type) encoderFunc {
 }
 
 var (
-	marshalerType     = reflect.TypeOf(new(Marshaler)).Elem()
-	textMarshalerType = reflect.TypeOf(new(encoding.TextMarshaler)).Elem()
-	orderedObjectType = reflect.TypeOf(new(OrderedObject)).Elem()
+	marshalerType     = reflect.TypeFor[Marshaler]()
+	textMarshalerType = reflect.TypeFor[encoding.TextMarshaler]()
+	orderedObjectType = reflect.TypeFor[OrderedObject]()
 )
 
 // newTypeEncoder constructs an encoderFunc for a type.
@@ -1334,9 +1335,7 @@ func cachedTypeFields(t reflect.Type) []field {
 	fieldCache.mu.Lock()
 	m, _ = fieldCache.value.Load().(map[reflect.Type][]field)
 	newM := make(map[reflect.Type][]field, len(m)+1)
-	for k, v := range m {
-		newM[k] = v
-	}
+	maps.Copy(newM, m)
 	newM[t] = f
 	fieldCache.value.Store(newM)
 	fieldCache.mu.Unlock()
