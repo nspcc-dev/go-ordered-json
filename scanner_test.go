@@ -303,10 +303,7 @@ func genString(stddev float64) string {
 }
 
 func genArray(n int) []any {
-	f := min(int(math.Abs(rand.NormFloat64())*math.Min(10, float64(n/2))), n)
-	if f < 1 {
-		f = 1
-	}
+	f := max(min(int(math.Abs(rand.NormFloat64())*math.Min(10, float64(n/2))), n), 1)
 	x := make([]any, f)
 	for i := range x {
 		x[i] = genValue(((i+1)*n)/f - (i*n)/f)
