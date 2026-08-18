@@ -318,7 +318,7 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.Uint() == 0
 	case reflect.Float32, reflect.Float64:
 		return v.Float() == 0
-	case reflect.Interface, reflect.Ptr:
+	case reflect.Interface, reflect.Pointer:
 		return v.IsNil()
 	default:
 	}
@@ -388,7 +388,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 	if t.Implements(marshalerType) {
 		return marshalerEncoder
 	}
-	if t.Kind() != reflect.Ptr && allowAddr {
+	if t.Kind() != reflect.Pointer && allowAddr {
 		if reflect.PointerTo(t).Implements(marshalerType) {
 			return newCondAddrEncoder(addrMarshalerEncoder, newTypeEncoder(t, false))
 		}
@@ -397,7 +397,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 	if t.Implements(textMarshalerType) {
 		return textMarshalerEncoder
 	}
-	if t.Kind() != reflect.Ptr && allowAddr {
+	if t.Kind() != reflect.Pointer && allowAddr {
 		if reflect.PointerTo(t).Implements(textMarshalerType) {
 			return newCondAddrEncoder(addrTextMarshalerEncoder, newTypeEncoder(t, false))
 		}
@@ -430,7 +430,7 @@ func newTypeEncoder(t reflect.Type, allowAddr bool) encoderFunc {
 		return newSliceEncoder(t)
 	case reflect.Array:
 		return newArrayEncoder(t)
-	case reflect.Ptr:
+	case reflect.Pointer:
 		return newPtrEncoder(t)
 	default:
 		return unsupportedTypeEncoder
@@ -442,7 +442,7 @@ func invalidValueEncoder(e *encodeState, v reflect.Value, _ encOpts) {
 }
 
 func marshalerEncoder(e *encodeState, v reflect.Value, opts encOpts) {
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if v.Kind() == reflect.Pointer && v.IsNil() {
 		e.WriteString("null")
 		return
 	}
@@ -479,7 +479,7 @@ func addrMarshalerEncoder(e *encodeState, v reflect.Value, _ encOpts) {
 }
 
 func textMarshalerEncoder(e *encodeState, v reflect.Value, opts encOpts) {
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if v.Kind() == reflect.Pointer && v.IsNil() {
 		e.WriteString("null")
 		return
 	}
@@ -855,7 +855,7 @@ func isValidTag(s string) bool {
 
 func fieldByIndex(v reflect.Value, index []int) reflect.Value {
 	for _, i := range index {
-		if v.Kind() == reflect.Ptr {
+		if v.Kind() == reflect.Pointer {
 			if v.IsNil() {
 				return reflect.Value{}
 			}
@@ -868,7 +868,7 @@ func fieldByIndex(v reflect.Value, index []int) reflect.Value {
 
 func typeByIndex(t reflect.Type, index []int) reflect.Type {
 	for _, i := range index {
-		if t.Kind() == reflect.Ptr {
+		if t.Kind() == reflect.Pointer {
 			t = t.Elem()
 		}
 		t = t.Field(i).Type
@@ -1171,7 +1171,7 @@ func typeFields(t reflect.Type) []field {
 				index[len(f.index)] = i
 
 				ft := sf.Type
-				if ft.Name() == "" && ft.Kind() == reflect.Ptr {
+				if ft.Name() == "" && ft.Kind() == reflect.Pointer {
 					// Follow pointer.
 					ft = ft.Elem()
 				}
