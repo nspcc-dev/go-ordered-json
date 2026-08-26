@@ -222,12 +222,10 @@ func ExampleRawMessage_unmarshal() {
 
 // This example uses RawMessage to use a precomputed JSON during marshal.
 func ExampleRawMessage_marshal() {
-	h := json.RawMessage(`{"precomputed": true}`)
-
 	c := struct {
 		Header *json.RawMessage `json:"header"`
 		Body   string           `json:"body"`
-	}{Header: &h, Body: "Hello Gophers!"}
+	}{Header: new(json.RawMessage(`{"precomputed": true}`)), Body: "Hello Gophers!"}
 
 	b, err := json.MarshalIndent(&c, "", "\t")
 	if err != nil {
