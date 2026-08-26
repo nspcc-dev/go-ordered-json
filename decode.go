@@ -308,8 +308,7 @@ func (d *decodeState) saveError(err error) {
 // addErrorContext returns a new error enhanced with information from d.errorContext.
 func (d *decodeState) addErrorContext(err error) error {
 	if d.errorContext.Struct != "" || d.errorContext.Field != "" {
-		var e *UnmarshalTypeError
-		if errors.As(err, &e) {
+		if e, ok := errors.AsType[*UnmarshalTypeError](err); ok {
 			e.Struct = d.errorContext.Struct
 			e.Field = d.errorContext.Field
 			return e

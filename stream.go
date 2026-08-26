@@ -503,8 +503,7 @@ func (dec *Decoder) Token() (Token, error) {
 }
 
 func clearOffset(err error) {
-	var s *SyntaxError
-	if errors.As(err, &s) {
+	if s, ok := errors.AsType[*SyntaxError](err); ok {
 		s.Offset = 0
 	}
 }
